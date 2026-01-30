@@ -10,8 +10,8 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Dummy on submit
-    console.log("Mahasiswa Login Attempt:", { username, password });
-    alert(`Mahasiswa Login: ${username}`);
+    console.log("Dosen Login Attempt:", { username, password });
+    alert(`Dosen Login: ${username}`);
   };
 
   return (
@@ -25,14 +25,14 @@ export default function LoginPage() {
             MyBimbingan
           </h1>
           <p className="mt-2 text-gray-500 font-medium">
-            Login sebagai mahasiswa
+            Login sebagai dosen
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2" htmlFor="username">
-              NIM
+              NUPTK
             </label>
             <input
               id="username"
@@ -73,7 +73,7 @@ export default function LoginPage() {
         <div className="mt-10 text-center">
           <p className="text-sm text-gray-500">
             Belum punya akun?{' '}
-            <Link href="/auth/register" className="font-bold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/register" className="font-bold text-blue-600 hover:text-blue-800 transition-colors">
               Daftar di sini
             </Link>
           </p>

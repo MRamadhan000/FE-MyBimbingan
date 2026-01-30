@@ -3,12 +3,13 @@
 import React, { useState } from "react";
 import { 
   FiCheck, FiX, FiCalendar, FiMessageCircle, 
-  FiAlertCircle, FiClock, FiSend, FiCornerDownRight 
+  FiAlertCircle, FiClock, FiSend, FiInfo 
 } from "react-icons/fi";
 
-export default function ManajemenPengajuanDosenV3() {
+export default function ManajemenPengajuanDosenMinimal() {
   const [rejectReason, setRejectReason] = useState("");
-  const [showRejectModal, setShowRejectModal] = useState<number | null>(null); // ID pengajuan
+  const [showRejectModal, setShowRejectModal] = useState<number | null>(null);
+  const [scheduledTime, setScheduledTime] = useState<{[key: number]: string}>({});
 
   const REQUESTS = [
     {
@@ -16,147 +17,214 @@ export default function ManajemenPengajuanDosenV3() {
       nama: "Budi Setiadi",
       nim: "20101140102",
       topik: "Diskusi Hasil Pengujian Algoritma Bab 4",
-      pesan: "Prof, saya sudah menyelesaikan coding. Mohon waktunya untuk bimbingan langsung di kampus."
+      pesan: "Prof, saya sudah menyelesaikan coding. Mohon waktunya untuk bimbingan langsung di kampus.",
+      waktuKirim: "2 jam yang lalu"
     },
     {
       id: 2,
-      nama: "Budi Setiadi",
-      nim: "20101140102",
-      topik: "Diskusi Hasil Pengujian Algoritma Bab 4",
-      pesan: "Prof, saya sudah menyelesaikan coding. Mohon waktunya untuk bimbingan langsung di kampus."
+      nama: "Siti Nurhaliza",
+      nim: "20101140089",
+      topik: "Review Bab 3 - Metodologi Penelitian",
+      pesan: "Selamat pagi Prof, saya ingin konsultasi mengenai pemilihan metode sampling yang tepat untuk penelitian saya.",
+      waktuKirim: "5 jam yang lalu"
     }
   ];
 
   const quickReasons = [
-    "Maaf, saya ada kegiatan mendadak.",
-    "Jadwal saya penuh minggu ini.",
-    "Silakan perbaiki dokumen dulu di sistem.",
-    "Lakukan bimbingan via chat saja dulu."
+    "Jadwal saya penuh minggu ini",
+    "Silakan perbaiki dokumen terlebih dahulu",
+    "Lakukan bimbingan via chat terlebih dahulu",
+    "Maaf, ada kegiatan mendadak"
   ];
 
+  const handleApprove = (id: number) => {
+    if (!scheduledTime[id]) {
+      alert("Pilih waktu pertemuan terlebih dahulu");
+      return;
+    }
+    alert(`Pengajuan disetujui untuk ${new Date(scheduledTime[id]).toLocaleString('id-ID')}`);
+  };
+
+  const handleReject = (id: number) => {
+    if (!rejectReason.trim()) {
+      alert("Masukkan alasan penolakan");
+      return;
+    }
+    alert(`Pengajuan ditolak dengan alasan: ${rejectReason}`);
+    setRejectReason("");
+    setShowRejectModal(null);
+  };
+
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4 space-y-8">
-      
-      {/* HEADER */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Pengajuan Baru</h1>
-        <p className="text-slate-500 font-medium">Tentukan waktu temu atau berikan alasan penolakan bimbingan.</p>
-      </div>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-5xl mx-auto py-8 px-4 space-y-6">
+        
+        {/* HEADER - Clean and Simple */}
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-slate-900">Pengajuan Bimbingan</h1>
+          <p className="text-sm text-slate-600">Kelola jadwal pertemuan dengan mahasiswa bimbingan Anda</p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {REQUESTS.map((req) => (
-          <div key={req.id} className="bg-white border border-slate-100 rounded-[3rem] shadow-xl shadow-slate-200/40 overflow-hidden group">
-            <div className="flex flex-col lg:flex-row">
-              
-              {/* INFO MAHASISWA & PESAN */}
-              <div className="p-8 lg:w-3/5 space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black">
-                    {req.nama.charAt(0)}
-                  </div>
-                  <div>
-                    <h3 className="font-black text-slate-900 leading-none">{req.nama}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{req.nim}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-6 bg-slate-50 rounded-[2.5rem] border border-slate-100/50">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <FiMessageCircle size={12} className="text-blue-500"/> Topik & Pesan
-                    </p>
-                    <h4 className="text-slate-900 font-bold mb-2">"{req.topik}"</h4>
-                    <p className="text-sm text-slate-600 font-medium leading-relaxed italic">
-                      {req.pesan}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 pl-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    <FiClock /> Dikirim Baru Saja
-                  </div>
-                </div>
-              </div>
-
-              {/* ACTION AREA (DOSEN DECISION) */}
-              <div className="p-8 lg:w-2/5 bg-slate-50/50 border-t lg:border-t-0 lg:border-l border-slate-100 space-y-6">
+        {/* REQUEST CARDS */}
+        <div className="space-y-4">
+          {REQUESTS.map((req) => (
+            <div 
+              key={req.id} 
+              className="bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+            >
+              {/* Main Content */}
+              <div className="p-6 space-y-4">
                 
-                {/* SET TIME & APPROVE */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Jadwalkan Pertemuan</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="datetime-local" 
-                      className="flex-1 p-3.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold focus:ring-4 focus:ring-blue-500/5 outline-none transition-all"
-                    />
-                    <button className="bg-slate-900 text-white p-4 rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">
-                      <FiCheck size={20} strokeWidth={3} />
-                    </button>
+                {/* Student Info */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg flex items-center justify-center font-semibold text-lg">
+                      {req.nama.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{req.nama}</h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">{req.nim}</p>
+                    </div>
                   </div>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">*Pilih waktu untuk menyetujui</p>
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <FiClock size={13} />
+                    <span>{req.waktuKirim}</span>
+                  </div>
                 </div>
 
-                <div className="relative py-1">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-200"></span></div>
-                  <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-300 bg-transparent px-2"><span className="bg-slate-50/50 px-2">Atau</span></div>
-                </div>
-
-                {/* REJECT BUTTON */}
-                <button 
-                  onClick={() => setShowRejectModal(showRejectModal === req.id ? null : req.id)}
-                  className="w-full py-4 bg-white border border-rose-100 text-rose-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-300"
-                >
-                  Tolak Pengajuan
-                </button>
-              </div>
-            </div>
-
-            {/* EXPANDABLE REJECT REASON */}
-            {showRejectModal === req.id && (
-              <div className="p-8 bg-rose-50/30 border-t border-rose-50 space-y-6 animate-in fade-in slide-in-from-top-4">
+                {/* Topic & Message */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-rose-600 font-black text-[10px] uppercase tracking-widest">
-                    <FiAlertCircle /> Klik Pintasan Alasan:
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                    <FiMessageCircle size={14} className="text-blue-600" />
+                    <span>Topik Bimbingan</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {quickReasons.map((text, idx) => (
-                      <button 
-                        key={idx}
-                        onClick={() => setRejectReason(text)}
-                        className="px-4 py-2 bg-white border border-rose-100 rounded-xl text-[10px] font-bold text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
-                      >
-                        {text}
-                      </button>
-                    ))}
+                  <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 space-y-2">
+                    <h4 className="font-semibold text-slate-900 text-sm">{req.topik}</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">{req.pesan}</p>
                   </div>
                 </div>
 
-                <div className="relative">
-                  <textarea 
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Atau tulis alasan kustom di sini..."
-                    className="w-full p-6 bg-white border border-rose-100 rounded-[2rem] text-sm font-medium focus:ring-4 focus:ring-rose-500/5 outline-none min-h-[120px] transition-all resize-none shadow-inner"
-                  />
-                  <button className="absolute bottom-4 right-4 px-6 py-3 bg-rose-500 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center gap-2 shadow-lg shadow-rose-200">
-                    Kirim Penolakan <FiSend />
+                {/* Actions */}
+                <div className="pt-2 space-y-3">
+                  
+                  {/* Schedule Input */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                      <FiCalendar size={13} />
+                      Jadwalkan Pertemuan
+                    </label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="datetime-local" 
+                        value={scheduledTime[req.id] || ''}
+                        onChange={(e) => setScheduledTime({...scheduledTime, [req.id]: e.target.value})}
+                        className="flex-1 px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                      />
+                      <button 
+                        onClick={() => handleApprove(req.id)}
+                        className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg font-semibold text-sm hover:from-emerald-600 hover:to-green-700 transition-all shadow-sm flex items-center gap-2"
+                      >
+                        <FiCheck size={16} strokeWidth={2.5} />
+                        Setujui
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-slate-200"></span>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-white px-3 text-slate-400 font-medium">atau</span>
+                    </div>
+                  </div>
+
+                  {/* Reject Button */}
+                  <button 
+                    onClick={() => setShowRejectModal(showRejectModal === req.id ? null : req.id)}
+                    className="w-full py-2.5 bg-white border border-rose-200 text-rose-600 rounded-lg font-semibold text-sm hover:bg-rose-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <FiX size={16} strokeWidth={2.5} />
+                    Tolak Pengajuan
                   </button>
                 </div>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
 
-      {/* FOOTER TIP */}
-      <div className="p-6 bg-slate-900 rounded-[2.5rem] flex items-center gap-4 shadow-2xl">
-        <div className="w-10 h-10 bg-white/10 text-white rounded-full flex items-center justify-center shrink-0">
-          <FiCornerDownRight />
+              {/* Expandable Reject Section */}
+              {showRejectModal === req.id && (
+                <div className="border-t border-rose-100 bg-rose-50/50 p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                  
+                  {/* Quick Reasons */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-rose-700 flex items-center gap-1.5">
+                      <FiAlertCircle size={13} />
+                      Pilih Alasan (Opsional)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {quickReasons.map((text, idx) => (
+                        <button 
+                          key={idx}
+                          onClick={() => setRejectReason(text)}
+                          className="px-3 py-1.5 bg-white border border-rose-200 rounded-lg text-xs font-medium text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition-all"
+                        >
+                          {text}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Reason */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-rose-700">
+                      Alasan Penolakan
+                    </label>
+                    <textarea 
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder="Tulis alasan penolakan di sini..."
+                      className="w-full p-4 bg-white border border-rose-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none min-h-[100px] resize-none transition-all"
+                    />
+                  </div>
+
+                  {/* Submit Reject */}
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setShowRejectModal(null)}
+                      className="flex-1 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-lg font-semibold text-sm hover:bg-slate-50 transition-all"
+                    >
+                      Batal
+                    </button>
+                    <button 
+                      onClick={() => handleReject(req.id)}
+                      className="flex-1 py-2.5 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-lg font-semibold text-sm hover:from-rose-600 hover:to-red-700 transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      <FiSend size={14} />
+                      Kirim Penolakan
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-        <p className="text-xs font-bold text-slate-300 leading-relaxed">
-          <span className="text-blue-400 block uppercase tracking-widest text-[9px] mb-1">Informasi Sistem</span>
-          Setelah waktu ditentukan, mahasiswa akan menerima notifikasi otomatis melalui sistem dan email.
-        </p>
-      </div>
 
+        {/* Info Footer */}
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-3">
+          <div className="flex-shrink-0">
+            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+              <FiInfo size={16} />
+            </div>
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold text-blue-900">Informasi</p>
+            <p className="text-xs text-blue-700 leading-relaxed">
+              Mahasiswa akan menerima notifikasi otomatis melalui sistem dan email setelah Anda menyetujui atau menolak pengajuan.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

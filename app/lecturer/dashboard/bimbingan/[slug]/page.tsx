@@ -189,53 +189,79 @@ export default function WorkspaceDosenFullControl() {
                 </div>
 
                 {/* RIGHT SIDE: DOSEN CARD */}
+                {/* RIGHT SIDE: DOSEN CARD */}
                 <div
                   className={`w-full md:w-1/2 flex mt-4 md:mt-0 ${!isMahasiswa ? "justify-end md:pl-12" : "hidden md:flex md:opacity-0 pointer-events-none"}`}
                 >
                   {!isMahasiswa && (
-                    <div className="w-full bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl relative group/card">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex flex-col gap-1">
+                    <div
+                      className={`w-full bg-white p-7 rounded-[2.5rem] border-2 shadow-xl relative group/card transition-all ${
+                        item.type === "SETUJUI"
+                          ? "border-emerald-100 shadow-emerald-200/20"
+                          : "border-orange-100 shadow-orange-200/20"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="flex flex-col gap-2">
+                          {/* BADGE STATUS */}
                           <span
-                            className={`text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
+                            className={`text-[10px] font-black uppercase tracking-[0.15em] px-4 py-1.5 rounded-xl w-fit shadow-sm ${
                               item.type === "SETUJUI"
-                                ? "bg-emerald-500/20 text-emerald-400"
-                                : "bg-orange-500/20 text-orange-400"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-orange-500 text-white"
                             }`}
                           >
                             Feedback {item.type}
                           </span>
-                          {/* TANGGAL DITAMBAHKAN DISINI */}
-                          <span className="text-[9px] font-bold text-slate-500 ml-1 mt-1 uppercase tracking-tighter italic">
-                            Diberikan pada: {item.date}
-                          </span>
+
+                          {/* TANGGAL: DIPERJELAS (BOLD & DARK) */}
+                          <div className="flex items-center gap-2 mt-1 px-1">
+                            <FiClock className="text-slate-900" size={12} />
+                            <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">
+                              Diterbitkan:{" "}
+                              <span className="text-blue-600">{item.date}</span>
+                            </span>
+                          </div>
                         </div>
 
                         {/* Action Buttons */}
                         <div className="flex gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity">
                           <button
                             onClick={() => handleEditFeedback(item)}
-                            className="p-2 bg-slate-800 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-all shadow-lg"
-                            title="Edit Feedback"
+                            className="p-2.5 bg-slate-100 text-slate-900 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                           >
-                            <FiEdit3 size={12} />
+                            <FiEdit3 size={14} />
                           </button>
                           <button
                             onClick={() => handleDeleteFeedback(item.id)}
-                            className="p-2 bg-slate-800 text-rose-400 rounded-lg hover:bg-rose-500 hover:text-white transition-all shadow-lg"
-                            title="Hapus Feedback"
+                            className="p-2.5 bg-slate-100 text-rose-500 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
                           >
-                            <FiTrash2 size={12} />
+                            <FiTrash2 size={14} />
                           </button>
                         </div>
                       </div>
 
-                      <p className="text-slate-300 font-medium text-sm leading-relaxed italic border-l-2 border-slate-700 pl-4">
-                        "{item.note}"
-                      </p>
+                      {/* Konten Feedback dengan Visual Kuat */}
+                      <div
+                        className={`border-l-4 pl-5 py-2 rounded-sm ${
+                          item.type === "SETUJUI"
+                            ? "border-emerald-500 bg-emerald-50/30"
+                            : "border-orange-500 bg-orange-50/30"
+                        }`}
+                      >
+                        <p className="text-slate-800 font-bold text-[13px] leading-relaxed">
+                          "{item.note}"
+                        </p>
+                      </div>
 
-                      {/* Decorative tail for bubble */}
-                      <div className="absolute left-0 top-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45 hidden md:block border-l border-b border-slate-800" />
+                      {/* Decorative Tail (White) */}
+                      <div
+                        className={`absolute left-0 top-1/2 -translate-x-1 w-3 h-3 bg-white rotate-45 hidden md:block border-l-2 border-b-2 ${
+                          item.type === "SETUJUI"
+                            ? "border-emerald-100"
+                            : "border-orange-100"
+                        }`}
+                      />
                     </div>
                   )}
                 </div>

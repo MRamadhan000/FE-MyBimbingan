@@ -11,7 +11,7 @@ import {
   FiXCircle,
   FiAlertCircle,
   FiExternalLink,
-  FiSearch
+  FiMessageSquare
 } from "react-icons/fi";
 
 // Dummy Data Riwayat
@@ -20,7 +20,7 @@ const RIWAYAT_DATA = [
     id: "REQ-001",
     lecturer: "Dr. Ir. Budi Santoso",
     topic: "Konsultasi BAB 3: Metodologi Penelitian dan Perancangan Sistem.",
-    status: "SCHEDULED", // Status: PENDING, SCHEDULED, REJECTED
+    status: "SCHEDULED",
     date: "Senin, 02 Feb 2026",
     time: "09:00 - 10:30",
     type: "OFFLINE",
@@ -61,131 +61,193 @@ export default function RiwayatBimbingan() {
     ? RIWAYAT_DATA 
     : RIWAYAT_DATA.filter(item => item.status === filter);
 
-  const getStatusStyle = (status: string) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
-      case "SCHEDULED": return "bg-emerald-50 text-emerald-600 border-emerald-100";
-      case "REJECTED": return "bg-rose-50 text-rose-600 border-rose-100";
-      default: return "bg-amber-50 text-amber-600 border-amber-100";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "SCHEDULED": return <FiCheckCircle />;
-      case "REJECTED": return <FiXCircle />;
-      default: return <FiClock className="animate-spin-slow" />;
+      case "SCHEDULED":
+        return {
+          label: "Terjadwal",
+          bg: "bg-emerald-50",
+          text: "text-emerald-700",
+          border: "border-emerald-200",
+          icon: <FiCheckCircle size={14} />
+        };
+      case "REJECTED":
+        return {
+          label: "Ditolak",
+          bg: "bg-rose-50",
+          text: "text-rose-700",
+          border: "border-rose-200",
+          icon: <FiXCircle size={14} />
+        };
+      default:
+        return {
+          label: "Menunggu",
+          bg: "bg-amber-50",
+          text: "text-amber-700",
+          border: "border-amber-200",
+          icon: <FiClock size={14} />
+        };
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 py-10 px-4">
-      
-      {/* HEADER & FILTER */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Riwayat Pengajuan</h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Pantau status persetujuan dan jadwal dari dosen.</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
+      <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
         
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl gap-1">
-          {["ALL", "PENDING", "SCHEDULED"].map((t) => (
-            <button
-              key={t}
-              onClick={() => setFilter(t)}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                filter === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              {t === "ALL" ? "Semua" : t}
-            </button>
-          ))}
+        {/* HEADER & FILTER */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Riwayat Pengajuan</h1>
+            <p className="text-sm text-slate-600 mt-1">Pantau status persetujuan dan jadwal dari dosen</p>
+          </div>
+          
+          <div className="inline-flex bg-white border border-slate-200 p-1 rounded-lg gap-1 shadow-sm">
+            {["ALL", "PENDING", "SCHEDULED", "REJECTED"].map((t) => (
+              <button
+                key={t}
+                onClick={() => setFilter(t)}
+                className={`px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                  filter === t 
+                    ? "bg-slate-900 text-white shadow-sm" 
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                {t === "ALL" ? "Semua" : t === "PENDING" ? "Menunggu" : t === "SCHEDULED" ? "Terjadwal" : "Ditolak"}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* LIST RIWAYAT */}
-      <div className="space-y-6">
-        {filteredData.map((item) => (
-          <div 
-            key={item.id}
-            className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group"
-          >
-            <div className="flex flex-col lg:flex-row justify-between gap-8">
+        {/* LIST RIWAYAT */}
+        <div className="space-y-4">
+          {filteredData.length > 0 ? (
+            filteredData.map((item) => {
+              const statusConfig = getStatusConfig(item.status);
+              const isScheduled = item.status === "SCHEDULED";
               
-              {/* INFO UTAMA */}
-              <div className="flex-1 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border flex items-center gap-2 ${getStatusStyle(item.status)}`}>
-                    {getStatusIcon(item.status)} {item.status}
-                  </div>
-                  <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">{item.id}</span>
-                </div>
+              return (
+                <div 
+                  key={item.id}
+                  className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-300 hover:shadow-md transition-all"
+                >
+                  {/* Status Bar */}
+                  <div className={`h-1 ${
+                    item.status === "SCHEDULED" ? "bg-emerald-500" : 
+                    item.status === "REJECTED" ? "bg-rose-500" : 
+                    "bg-amber-500"
+                  }`} />
 
-                <div>
-                  <div className="flex items-center gap-2 text-slate-900 mb-1">
-                    <FiUser size={16} className="text-slate-400" />
-                    <h3 className="text-lg font-black">{item.lecturer}</h3>
-                  </div>
-                  <p className="text-slate-500 text-sm leading-relaxed italic">"{item.topic}"</p>
-                </div>
-
-                {/* NOTE DARI DOSEN */}
-                <div className="p-4 bg-slate-50 rounded-2xl border-l-4 border-slate-200">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-                    <FiAlertCircle /> Catatan Dosen
-                  </p>
-                  <p className="text-xs text-slate-600 font-medium">{item.note}</p>
-                </div>
-              </div>
-
-              {/* JADWAL DARI DOSEN (Hanya muncul jika SCHEDULED) */}
-              <div className={`lg:w-72 shrink-0 transition-all ${item.status === 'SCHEDULED' ? 'opacity-100' : 'opacity-40'}`}>
-                <div className={`h-full rounded-[2rem] p-6 flex flex-col justify-between border-2 ${
-                  item.status === 'SCHEDULED' ? 'bg-slate-900 border-slate-900 shadow-2xl shadow-slate-200' : 'bg-slate-50 border-dashed border-slate-200'
-                }`}>
-                  {item.status === "SCHEDULED" ? (
-                    <>
-                      <div className="space-y-4 text-white">
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Waktu Pertemuan</p>
-                          <div className="flex items-center gap-3">
-                            <FiCalendar className="text-blue-400" />
-                            <span className="text-sm font-bold">{item.date}</span>
+                  <div className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      
+                      {/* INFO UTAMA */}
+                      <div className="flex-1 space-y-4">
+                        {/* Header */}
+                        <div className="flex flex-wrap items-center gap-3">
+                          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                            {statusConfig.icon}
+                            <span>{statusConfig.label}</span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <FiClock className="text-blue-400" />
-                            <span className="text-sm font-bold">{item.time}</span>
-                          </div>
+                          <span className="text-xs text-slate-400 font-medium">{item.id}</span>
                         </div>
 
-                        <div className="space-y-1 pt-4 border-t border-white/10">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Lokasi / Link</p>
-                          <div className="flex items-center gap-3">
-                            {item.type === "ONLINE" ? <FiVideo className="text-purple-400" /> : <FiMapPin className="text-orange-400" />}
-                            <span className="text-sm font-bold truncate">{item.location}</span>
+                        {/* Lecturer & Topic */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <FiUser size={16} className="text-slate-400" />
+                            <h3 className="text-base font-bold text-slate-900">{item.lecturer}</h3>
+                          </div>
+                          <p className="text-sm text-slate-600 leading-relaxed pl-6">
+                            {item.topic}
+                          </p>
+                        </div>
+
+                        {/* Note dari Dosen */}
+                        <div className={`p-4 rounded-lg border-l-4 ${
+                          item.status === "REJECTED" ? "bg-rose-50 border-rose-300" : "bg-slate-50 border-slate-300"
+                        }`}>
+                          <div className="flex items-start gap-2">
+                            <FiMessageSquare size={16} className={`flex-shrink-0 mt-0.5 ${
+                              item.status === "REJECTED" ? "text-rose-500" : "text-slate-400"
+                            }`} />
+                            <div>
+                              <p className="text-xs font-semibold text-slate-700 mb-1">Catatan Dosen</p>
+                              <p className="text-sm text-slate-600">{item.note}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                      
-                      {item.type === "ONLINE" && (
-                        <button className="mt-6 w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all">
-                          Gabung Sesi <FiExternalLink />
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center space-y-2">
-                      <FiCalendar size={24} className="text-slate-300" />
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Jadwal Belum<br/>Tersedia</p>
+
+                      {/* JADWAL INFO */}
+                      <div className="lg:w-80">
+                        {isScheduled ? (
+                          <div className="h-full bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 text-white shadow-lg">
+                            <div className="space-y-4">
+                              {/* Date & Time */}
+                              <div className="space-y-3">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jadwal Pertemuan</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-3">
+                                    <FiCalendar size={16} className="text-blue-400" />
+                                    <span className="text-sm font-medium">{item.date}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <FiClock size={16} className="text-blue-400" />
+                                    <span className="text-sm font-medium">{item.time}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Location */}
+                              <div className="pt-4 border-t border-white/10">
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Lokasi</p>
+                                <div className="flex items-center gap-3">
+                                  {item.type === "ONLINE" ? (
+                                    <FiVideo size={16} className="text-purple-400" />
+                                  ) : (
+                                    <FiMapPin size={16} className="text-amber-400" />
+                                  )}
+                                  <span className="text-sm font-medium">{item.location}</span>
+                                </div>
+                              </div>
+
+                              {/* Join Button for Online */}
+                              {item.type === "ONLINE" && (
+                                <button className="w-full mt-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                                  <FiVideo size={16} />
+                                  Join Meeting
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="h-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mb-3">
+                              <FiCalendar size={20} className="text-slate-400" />
+                            </div>
+                            <p className="text-sm font-medium text-slate-500">
+                              {item.status === "REJECTED" ? "Pengajuan Ditolak" : "Jadwal Belum Ditentukan"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
                     </div>
-                  )}
+                  </div>
                 </div>
+              );
+            })
+          ) : (
+            <div className="p-12 text-center bg-white border-2 border-dashed border-slate-200 rounded-xl">
+              <div className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <FiAlertCircle className="text-slate-400" size={24} />
               </div>
-
+              <p className="text-sm text-slate-500 font-medium">Tidak ada data sesuai filter</p>
             </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </div>
 
+      </div>
     </div>
   );
 }
