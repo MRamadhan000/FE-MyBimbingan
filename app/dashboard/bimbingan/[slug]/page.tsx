@@ -9,32 +9,33 @@ import {
   FiClock,
   FiUser,
   FiDownload,
-  FiCornerDownRight,
   FiEdit3,
-  FiAward,
-  FiArrowDown,
+  FiMessageCircle,
 } from "react-icons/fi";
 
 type Status = 'MENUNGGU_REVIEW' | 'REVISI' | 'DISETUJUI';
 
-const STATUS_CONFIG: Record<Status, { label: string; icon: React.ReactElement; bg: string; text: string }> = {
+const STATUS_CONFIG: Record<Status, { label: string; icon: React.ReactElement; bg: string; text: string; border: string }> = {
   MENUNGGU_REVIEW: {
-    label: "MENUNGGU REVIEW",
-    icon: <FiClock size={14} />,
-    bg: "bg-slate-100",
-    text: "text-slate-500",
+    label: "Menunggu Review",
+    icon: <FiClock size={16} />,
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200"
   },
   REVISI: {
-    label: "PERLU REVISI",
-    icon: <FiEdit3 size={14} />,
-    bg: "bg-orange-100",
-    text: "text-orange-600",
+    label: "Perlu Revisi",
+    icon: <FiEdit3 size={16} />,
+    bg: "bg-orange-50",
+    text: "text-orange-700",
+    border: "border-orange-200"
   },
   DISETUJUI: {
-    label: "DISETUJUI",
-    icon: <FiCheckCircle size={14} />,
-    bg: "bg-emerald-500",
-    text: "text-white",
+    label: "Disetujui",
+    icon: <FiCheckCircle size={16} />,
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200"
   },
 };
 
@@ -82,96 +83,123 @@ export default function BimbinganSaya() {
   const { slug } = useParams();
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-4">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Log Aktivitas</h1>
-          <p className="text-slate-500 font-medium mt-1">Seluruh riwayat bimbingan dan feedback dosen.</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        
+        {/* HEADER */}
+        <div className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
+            <h1 className="text-3xl font-bold text-slate-900">Log Aktivitas Bimbingan</h1>
+            <button 
+              onClick={() => router.push(`/dashboard/bimbingan/${slug}/create`)} 
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium shadow-sm transition-all active:scale-[0.98]"
+            >
+              <FiUploadCloud size={18} />
+              <span>Update Progres</span>
+            </button>
+          </div>
+          <p className="text-slate-600 text-sm">Riwayat pengajuan dan feedback dari dosen pembimbing</p>
         </div>
-        <button onClick={() => router.push(`/dashboard/bimbingan/${slug}/create`)} className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-blue-100 transition-all active:scale-95">
-          <FiUploadCloud size={20} /> Update Progres
-        </button>
-      </div>
 
-      {/* TIMELINE CONTAINER */}
-      <div className="space-y-12 relative">
-        {/* Garis Tengah Timeline */}
-        <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-slate-100 hidden md:block" />
+        {/* TIMELINE */}
+        <div className="relative">
+          {/* Timeline Line */}
+          <div className="absolute left-4 top-8 bottom-8 w-0.5 bg-gradient-to-b from-blue-200 via-slate-200 to-transparent hidden sm:block" />
 
-        {DETAILED_HISTORY.map((item, i) => {
-          const statusMeta = STATUS_CONFIG[item.response.status];
-          const isLatest = i === 0;
+          <div className="space-y-16">
+            {DETAILED_HISTORY.map((item, index) => {
+              const statusMeta = STATUS_CONFIG[item.response.status];
+              const isLatest = index === 0;
 
-          return (
-            <div key={item.id} className="relative">
-              <div className="space-y-6">
-                
-                {/* 1. STUDENT LOG */}
-                <div className="relative pl-0 md:pl-20">
-                  {/* Dot Marker */}
-                  <div className={`hidden md:flex absolute left-[23px] top-6 w-4 h-4 rounded-full border-4 border-white z-10 shadow-sm ${isLatest ? 'bg-blue-500' : 'bg-slate-300'}`} />
+              return (
+                <div key={item.id} className="relative">
                   
-                  <div className={`p-6 rounded-[2rem] border transition-all ${isLatest ? 'bg-white border-blue-100 shadow-xl shadow-slate-100' : 'bg-slate-50/50 border-slate-100 opacity-70'}`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-blue-500 uppercase tracking-widest">
-                        <FiUser /> Kiriman Anda • {item.date}
-                      </div>
-                      {!isLatest && <span className="text-[8px] font-black bg-slate-200 text-slate-500 px-2 py-0.5 rounded">ARCHIVED</span>}
-                    </div>
-                    
-                    <p className="text-slate-700 text-sm font-semibold leading-relaxed mb-6">{item.summary}</p>
+                  {/* Timeline Dot */}
+                  <div className={`absolute left-[9px] top-8 w-6 h-6 rounded-full border-4 border-white shadow-md z-10 hidden sm:block ${
+                    isLatest ? 'bg-blue-500' : 'bg-slate-300'
+                  }`} />
 
-                    <div className="flex items-center gap-3 bg-slate-100/50 p-3 rounded-xl w-fit border border-slate-100">
-                      <FiFileText size={16} className="text-slate-400" />
-                      <span className="text-[11px] font-bold text-slate-600">{item.files[0].name}</span>
-                      <FiDownload className="text-slate-400 ml-2 cursor-pointer hover:text-blue-500" />
+                  {/* Card Container */}
+                  <div className="sm:pl-16 space-y-3">
+                    
+                    {/* DOSEN RESPONSE */}
+                    <div className={`bg-white rounded-xl border overflow-hidden shadow-sm ml-0 sm:ml-8 ${statusMeta.border}`}>
+                      <div className="p-5">
+                        {/* Response Header */}
+                        <div className="flex items-start justify-between mb-4 gap-3">
+                          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold ${statusMeta.bg} ${statusMeta.text} ${statusMeta.border} border`}>
+                            {statusMeta.icon}
+                            <span>{statusMeta.label}</span>
+                          </div>
+                          <span className="text-xs text-slate-500 whitespace-nowrap">{item.response.date}</span>
+                        </div>
+
+                        {/* Feedback Comment */}
+                        <div className="flex gap-3">
+                          <FiMessageCircle size={18} className="text-slate-300 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm text-slate-700 leading-relaxed italic">
+                            "{item.response.comment}"
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Success Banner (only for approved latest) */}
+                      {item.response.status === 'DISETUJUI' && isLatest && (
+                        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 border-t border-emerald-200 px-5 py-3">
+                          <p className="text-xs font-semibold text-emerald-700 flex items-center gap-2">
+                            <FiCheckCircle size={14} />
+                            Progres disetujui, siap lanjut ke tahap berikutnya
+                          </p>
+                        </div>
+                      )}
                     </div>
+
+                    {/* STUDENT SUBMISSION */}
+                    <div className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all ${
+                      isLatest ? 'border-blue-100 shadow-blue-50' : 'border-slate-200'
+                    }`}>
+                      <div className="p-5">
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-4 gap-3">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-blue-600">
+                            <FiUser size={14} />
+                            <span>Pengajuan Anda</span>
+                          </div>
+                          <span className="text-xs text-slate-500 whitespace-nowrap">{item.date}</span>
+                        </div>
+
+                        {/* Summary */}
+                        <p className="text-sm text-slate-700 leading-relaxed mb-4">
+                          {item.summary}
+                        </p>
+
+                        {/* File Attachment */}
+                        <div className="inline-flex items-center gap-3 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-lg border border-slate-200 transition-colors cursor-pointer group">
+                          <FiFileText size={18} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-slate-700 truncate">{item.files[0].name}</p>
+                            <p className="text-xs text-slate-500">{item.files[0].size}</p>
+                          </div>
+                          <FiDownload size={16} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                {/* 2. DOSEN FEEDBACK */}
-                <div className="relative pl-8 md:pl-32">
-                  <FiCornerDownRight className="absolute left-0 md:left-24 top-0 text-slate-200" size={24} />
-                  
-                  <div className={`p-6 md:p-8 rounded-[2.5rem] border-2 transition-all ${
-                    item.response.status === 'DISETUJUI' 
-                    ? 'bg-emerald-50 border-emerald-100 shadow-lg shadow-emerald-100/20' 
-                    : 'bg-white border-slate-100 shadow-sm'
-                  } ${!isLatest && 'opacity-70'}`}>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`inline-flex items-center gap-2 text-[10px] font-black px-4 py-1.5 rounded-full ${statusMeta.bg} ${statusMeta.text}`}>
-                        {statusMeta.icon} {statusMeta.label}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                         Dosen • {item.response.date}
-                      </span>
-                    </div>
-
-                    <p className={`leading-relaxed ${item.response.status === 'DISETUJUI' ? 'text-slate-900 font-bold text-base' : 'text-slate-600 italic text-sm font-medium'}`}>
-                      "{item.response.comment}"
-                    </p>
-
-                    {item.response.status === 'DISETUJUI' && isLatest && (
-                      <div className="mt-6 flex items-center gap-2 text-emerald-600 font-black text-[10px] uppercase tracking-widest">
-                        <FiAward className="animate-bounce" /> Progres Selesai & Disetujui
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Arrow Connector between groups */}
-              {i < DETAILED_HISTORY.length - 1 && (
-                <div className="flex justify-center md:justify-start md:pl-6 py-10">
-                  <FiArrowDown className="text-slate-200" size={20} />
-                </div>
-              )}
+          {/* End of Timeline Indicator */}
+          <div className="sm:pl-16 mt-8">
+            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
+              <div className="w-2 h-2 rounded-full bg-slate-300" />
+              <span>Awal riwayat bimbingan</span>
             </div>
-          );
-        })}
+          </div>
+        </div>
+
       </div>
     </div>
   );
