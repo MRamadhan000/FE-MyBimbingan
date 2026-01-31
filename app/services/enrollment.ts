@@ -12,7 +12,13 @@ export async function createEnrollment(lecturerId: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create enrollment');
+    let errorMessage = 'Failed to create enrollment';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch (e) {      
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -26,7 +32,14 @@ export async function getAllEnrollments() {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get enrollments');
+    let errorMessage = 'Failed to get enrollments';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -40,7 +53,14 @@ export async function getEnrollmentById(id: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get enrollment');
+    let errorMessage = 'Failed to get enrollment';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -54,7 +74,14 @@ export async function deleteEnrollment(id: string) {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete enrollment');
+    let errorMessage = 'Failed to delete enrollment';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();

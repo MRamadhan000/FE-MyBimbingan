@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { getAllLecturers } from "../../services/lecturers";
 import { createEnrollment } from "../../services/enrollment";
+import Toast, { useToast } from "../../components/Toast";
 
 interface Lecturer {
   id: string;
@@ -28,6 +29,7 @@ export default function EnrollBimbingan() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [selectedDosen, setSelectedDosen] = useState<string | null>(null);
   const [lecturers, setLecturers] = useState<Lecturer[]>([]);
+  const { toast, showSuccess, showError, showWarning, hideToast } = useToast();
 
   useEffect(() => {
     const fetchLecturers = async () => {
@@ -36,9 +38,14 @@ export default function EnrollBimbingan() {
         setLecturers(response.data);
       } catch (error) {
         console.error("Failed to fetch lecturers:", error);
+        showError(
+          "Gagal Memuat Data", 
+          error instanceof Error ? error.message : "Tidak dapat memuat daftar dosen. Silakan refresh halaman."
+        );
       }
     };
     fetchLecturers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredDosen = lecturers.filter(d => 
@@ -50,11 +57,23 @@ export default function EnrollBimbingan() {
     if (selectedDosen) {
       try {
         await createEnrollment(selectedDosen);
-        setTimeout(() => setIsSuccess(true), 800);
+        showSuccess(
+          "Enroll Berhasil",
+          "Dosen telah berhasil ditambahkan ke daftar pembimbing Anda."
+        );
+        setTimeout(() => setIsSuccess(true), 1500);
       } catch (error) {
         console.error("Failed to enroll:", error);
-        alert("Failed to enroll");
+        showError(
+          "Enroll Gagal",
+          error instanceof Error ? error.message : "Terjadi kesalahan saat menambahkan dosen. Silakan coba lagi."
+        );
       }
+    } else {
+      showWarning(
+        "Pilih Dosen Terlebih Dahulu",
+        "Silakan pilih dosen pembimbing sebelum melanjutkan."
+      );
     }
   };
 
@@ -158,6 +177,17 @@ export default function EnrollBimbingan() {
           Enroll Dosen <FiUserPlus size={18} />
         </button>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          isVisible={toast.isVisible}
+          onClose={hideToast}
+        />
+      )}
 
     </div>
   );
