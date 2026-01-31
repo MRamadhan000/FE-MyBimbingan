@@ -4,21 +4,27 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { loginStudent } from '../../services/auth';
+import Toast, { useToast } from '../../components/Toast';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { toast, showError, showSuccess } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await loginStudent({ studentNumber: username, password });
       console.log("Login successful:", response);
-      router.push('/dashboard');
+      showSuccess("Login Berhasil", "Selamat datang kembali!");
+      setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error: any) {
       console.error("Login failed:", error);
-      alert(`Login failed: ${error.message}`);
+      showError(
+        "Login Gagal",
+        error instanceof Error ? error.message : "Terjadi kesalahan saat login. Silakan coba lagi."
+      );
     }
   };
 
@@ -88,6 +94,18 @@ export default function LoginPage() {
         </div>
 
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          isVisible={toast.isVisible}
+          onClose={() => {}}
+        />
+      )}
+
     </main>
   );
 }

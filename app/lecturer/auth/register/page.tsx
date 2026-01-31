@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FiUser, FiHash, FiBook, FiLock, FiArrowRight, FiImage } from 'react-icons/fi';
 import { registerLecturer } from '../../../services/auth';
+import Toast, { useToast } from '../../../components/Toast';
 
 export default function RegisterLecturerPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function RegisterLecturerPage() {
     image: '',
   });
   const router = useRouter();
+  const { toast, showError, showSuccess } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +30,14 @@ export default function RegisterLecturerPage() {
         image: formData.image,
       });
       console.log("Registration successful:", response);
-      alert(`Registration successful: ${response.data.name}`);
-      router.push('/lecturer/auth/login');
+      showSuccess("Registrasi Berhasil", `Akun ${response.data?.name || 'Dosen'} telah berhasil dibuat. Silakan login.`);
+      setTimeout(() => router.push('/lecturer/auth/login'), 2000);
     } catch (error: any) {
       console.error("Registration failed:", error);
-      alert(`Registration failed: ${error.message}`);
+      showError(
+        "Registrasi Gagal",
+        error instanceof Error ? error.message : "Terjadi kesalahan saat registrasi. Silakan coba lagi."
+      );
     }
   };
 
@@ -167,6 +172,18 @@ export default function RegisterLecturerPage() {
         </div>
 
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          isVisible={toast.isVisible}
+          onClose={() => {}}
+        />
+      )}
+
     </main>
   );
 }

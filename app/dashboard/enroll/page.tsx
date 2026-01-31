@@ -61,7 +61,6 @@ export default function EnrollBimbingan() {
           "Enroll Berhasil",
           "Dosen telah berhasil ditambahkan ke daftar pembimbing Anda."
         );
-        setTimeout(() => setIsSuccess(true), 1500);
       } catch (error) {
         console.error("Failed to enroll:", error);
         showError(

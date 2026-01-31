@@ -17,7 +17,18 @@ export async function registerStudent(data: {
   });
 
   if (!response.ok) {
-    throw new Error('Student registration failed');
+    let errorMessage = 'Student registration failed';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -38,7 +49,18 @@ export async function loginStudent(data: {
   });
 
   if (!response.ok) {
-    throw new Error('Student login failed');
+    let errorMessage = 'Student login failed';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -61,7 +83,18 @@ export async function registerLecturer(data: {
   });
 
   if (!response.ok) {
-    throw new Error('Lecturer registration failed');
+    let errorMessage = 'Lecturer registration failed';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -82,7 +115,18 @@ export async function loginLecturer(data: {
   });
 
   if (!response.ok) {
-    throw new Error('Lecturer login failed');
+    let errorMessage = 'Lecturer login failed';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -96,7 +140,18 @@ export async function getStudentProfile() {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get student profile');
+    let errorMessage = 'Failed to get student profile';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -110,7 +165,18 @@ export async function getLecturerProfile() {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to get lecturer profile');
+    let errorMessage = 'Failed to get lecturer profile';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -124,7 +190,18 @@ export async function logout() {
   });
 
   if (!response.ok) {
-    throw new Error('Logout failed');
+    let errorMessage = 'Logout failed';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
   }
 
   return response.json();
