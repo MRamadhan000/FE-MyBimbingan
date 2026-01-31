@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { 
   FiUser, 
   FiBriefcase, 
@@ -9,8 +8,11 @@ import {
   FiShield, 
   FiZap 
 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const router = useRouter();
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans">
       
@@ -59,10 +61,10 @@ export default function LandingPage() {
           </div>
 
           {/* RIGHT: LOGIN CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6" >
             
             {/* LOGIN MAHASISWA */}
-            <div className="group bg-white p-8 rounded-[3rem] border-2 border-slate-100 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 cursor-pointer">
+            <div className="group bg-white p-8 rounded-[3rem] border-2 border-slate-100 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 cursor-pointer" onClick={() => router.push('/auth/login')}>
               <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-500">
                 <FiUser size={28} />
               </div>
@@ -76,7 +78,7 @@ export default function LandingPage() {
             </div>
 
             {/* LOGIN DOSEN */}
-            <div className="group bg-slate-900 p-8 rounded-[3rem] border-2 border-slate-900 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 cursor-pointer">
+            <div className="group bg-slate-900 p-8 rounded-[3rem] border-2 border-slate-900 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 cursor-pointer" onClick={() => router.push('/lecturer/auth/login')}>
               <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-colors duration-500">
                 <FiBriefcase size={28} />
               </div>
