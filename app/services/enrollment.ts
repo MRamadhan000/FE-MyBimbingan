@@ -77,7 +77,36 @@ export async function deleteEnrollment(id: string) {
     let errorMessage = 'Failed to delete enrollment';
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorData.error || errorMessage;
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
+    } catch (e) {
+      // If response is not JSON, use default message
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
+
+// Get My Enrollments
+export async function getMyEnrollments() {
+  const response = await fetch(`${BASE_URL}/enrollments/my`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to get my enrollments';
+    try {
+      const errorData = await response.json();
+      if (Array.isArray(errorData.message)) {
+        errorMessage = errorData.message[0] || errorMessage;
+      } else {
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      }
     } catch (e) {
       // If response is not JSON, use default message
     }
