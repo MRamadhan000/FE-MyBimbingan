@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useParams } from 'next/navigation';
 import {
   FiUpload,
   FiFile,
@@ -9,20 +10,14 @@ import {
   FiInfo,
   FiCheckCircle,
   FiChevronLeft,
-  FiRefreshCw,
-  FiPlus,
 } from "react-icons/fi";
-
-// Data Dummy Revisi yang tersedia untuk diperbaiki
-const REVISION_LIST = [
-  { id: 101, date: "26 Jan 2026", note: "Persempit populasi penelitian ke skala UKM.", type: "Bab 3" },
-  { id: 102, date: "24 Jan 2026", note: "Perbaiki instrumen kuesioner pada variabel X.", type: "Instrumen" },
-];
+import { createSubmission } from '../../../../services/submission';
 
 export default function UploadProgress() {
-  const [context, setContext] = useState<"NEW" | "REVISION">("NEW");
-  const [selectedRevisionId, setSelectedRevisionId] = useState<number | null>(null);
+  const { slug } = useParams();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -32,17 +27,31 @@ export default function UploadProgress() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedFile || !title.trim() || !slug) return;
+
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const submissionData = {
+        title: title.trim(),
+        description: description.trim(),
+        enrollmentId: slug as string,
+        files: [selectedFile],
+      };
+
+      await createSubmission(submissionData);
       setIsSuccess(true);
-    }, 2000);
+    } catch (error) {
+      console.error('Failed to submit:', error);
+      alert('Gagal mengirim submission. Silakan coba lagi.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Validasi tombol submit
-  const isFormValid = context === "NEW" ? !!selectedFile : (!!selectedFile && !!selectedRevisionId);
+  const isFormValid = !!selectedFile && !!title.trim();
 
   if (isSuccess) {
     return (
@@ -53,7 +62,7 @@ export default function UploadProgress() {
           </div>
         </div>
         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Berhasil Terkirim!</h2>
-        <p className="text-slate-500">Laporan {context === 'NEW' ? 'progres baru' : 'perbaikan revisi'} Anda telah diteruskan ke dosen.</p>
+        <p className="text-slate-500">Laporan progres Anda telah diteruskan ke dosen.</p>
         <button onClick={() => setIsSuccess(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest">
           Kembali ke Dashboard
         </button>
@@ -76,63 +85,34 @@ export default function UploadProgress() {
 
       <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[3rem] border border-slate-100 shadow-2xl shadow-slate-200/40 space-y-10">
         
-        {/* --- PILIH KONTEKS (Radio Button Utama) --- */}
+        {/* --- JUDUL --- */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
-            Apa yang ingin Anda kirim?
+            Judul Submission
           </label>
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              onClick={() => setContext("NEW")}
-              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-black text-xs uppercase tracking-widest ${
-                context === "NEW" ? "border-blue-600 bg-blue-50/50 text-blue-600 shadow-lg shadow-blue-500/10" : "border-slate-50 text-slate-400 hover:border-slate-200"
-              }`}
-            >
-              <FiPlus size={18} /> Progres Baru
-            </button>
-            <button
-              type="button"
-              onClick={() => setContext("REVISION")}
-              className={`flex items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all font-black text-xs uppercase tracking-widest ${
-                context === "REVISION" ? "border-orange-500 bg-orange-50/50 text-orange-600 shadow-lg shadow-orange-500/10" : "border-slate-50 text-slate-400 hover:border-slate-200"
-              }`}
-            >
-              <FiRefreshCw size={18} /> Fix Revisi
-            </button>
-          </div>
+          <input 
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Masukkan judul submission..."
+            className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-sm focus:ring-4 focus:ring-blue-500/5 focus:bg-white focus:border-blue-500 transition-all outline-none font-medium text-slate-700 placeholder:text-slate-300"
+            required
+          />
         </div>
 
-        {/* --- DAFTAR REVISI (Muncul hanya jika pilih REVISION) --- */}
-        {context === "REVISION" && (
-          <div className="space-y-4 animate-in slide-in-from-top-4 duration-300">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-600 ml-1">
-              Pilih Revisi yang Diperbaiki:
-            </label>
-            <div className="grid grid-cols-1 gap-3">
-              {REVISION_LIST.map((rev) => (
-                <div
-                  key={rev.id}
-                  onClick={() => setSelectedRevisionId(rev.id)}
-                  className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${
-                    selectedRevisionId === rev.id ? "border-orange-500 bg-white shadow-md" : "border-slate-50 bg-slate-50/50 hover:border-slate-200"
-                  }`}
-                >
-                  <div className={`mt-1 ${selectedRevisionId === rev.id ? "text-orange-500" : "text-slate-300"}`}>
-                    <FiCheckCircle size={20} />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-black bg-orange-100 text-orange-600 px-2 py-0.5 rounded uppercase tracking-tighter">ID: #{rev.id}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{rev.date}</span>
-                    </div>
-                    <p className="text-xs font-bold text-slate-700 italic">"{rev.note}"</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* --- DESKRIPSI --- */}
+        <div className="space-y-4">
+          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
+            Ringkasan Pengerjaan <span className="text-slate-300 font-medium tracking-normal lowercase">(opsional)</span>
+          </label>
+          <textarea 
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="Tuliskan poin-poin perubahan atau progres yang Anda lakukan..."
+            className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-sm focus:ring-4 focus:ring-blue-500/5 focus:bg-white focus:border-blue-500 transition-all outline-none font-medium text-slate-700 placeholder:text-slate-300"
+          />
+        </div>
 
         {/* --- UPLOAD AREA --- */}
         <div className="space-y-4">
@@ -162,18 +142,6 @@ export default function UploadProgress() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* --- DESKRIPSI --- */}
-        <div className="space-y-4">
-          <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">
-            Ringkasan Pengerjaan <span className="text-slate-300 font-medium tracking-normal lowercase">(opsional)</span>
-          </label>
-          <textarea 
-            rows={4}
-            placeholder="Tuliskan poin-poin perubahan atau progres yang Anda lakukan..."
-            className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[1.5rem] text-sm focus:ring-4 focus:ring-blue-500/5 focus:bg-white focus:border-blue-500 transition-all outline-none font-medium text-slate-700 placeholder:text-slate-300"
-          />
         </div>
 
         {/* SUBMIT */}

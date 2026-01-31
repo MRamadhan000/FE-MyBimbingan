@@ -50,7 +50,6 @@ export interface CreateSubmissionData {
   title: string;
   description: string;
   enrollmentId: string;
-  parentId?: string;
   files?: FileList | File[];
 }
 
@@ -67,10 +66,6 @@ export async function createSubmission(data: CreateSubmissionData) {
   formData.append('title', data.title);
   formData.append('description', data.description);
   formData.append('enrollmentId', data.enrollmentId);
-
-  if (data.parentId) {
-    formData.append('parentId', data.parentId);
-  }
 
   // Add files if provided
   if (data.files) {
