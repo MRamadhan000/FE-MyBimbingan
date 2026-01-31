@@ -2,16 +2,25 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { loginLecturer } from '../../../services/auth';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy on submit
-    console.log("Dosen Login Attempt:", { username, password });
-    alert(`Dosen Login: ${username}`);
+    try {
+      const response = await loginLecturer({ nuptk: username, password });
+      console.log("Login successful:", response);
+      alert(`Login successful: ${response.data.name}`);
+      router.push('/lecturer/dashboard');
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      alert(`Login failed: ${error.message}`);
+    }
   };
 
   return (
@@ -39,7 +48,7 @@ export default function LoginPage() {
               type="text"
               required
               className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="NIM"
+              placeholder="NUPTK"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -73,7 +82,7 @@ export default function LoginPage() {
         <div className="mt-10 text-center">
           <p className="text-sm text-gray-500">
             Belum punya akun?{' '}
-            <Link href="/register" className="font-bold text-blue-600 hover:text-blue-800 transition-colors">
+            <Link href="/lecturer/auth/register" className="font-bold text-blue-600 hover:text-blue-800 transition-colors">
               Daftar di sini
             </Link>
           </p>

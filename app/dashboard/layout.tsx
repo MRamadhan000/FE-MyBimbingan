@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   FiGrid, 
   FiFileText, 
@@ -17,6 +17,7 @@ import {
   FiChevronRight,
   FiUser,
 } from 'react-icons/fi';
+import { getStudentProfile, logout } from '../services/auth';
 
 const MENU_ITEMS = [
   { label: 'Dashboard', pintasan: 'Dashboard', href: '/dashboard', icon: <FiGrid size={20} /> },
@@ -30,7 +31,34 @@ const MENU_ITEMS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getStudentProfile();
+        setProfile(response.data);
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+        // Redirect to login if not authenticated
+        router.push('/auth/login');
+      }
+    };
+    fetchProfile();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still redirect
+      router.push('/auth/login');
+    }
+  };
 
   return (
     // Menggunakan h-screen dan overflow-hidden pada root agar tidak ada scroll body utama
@@ -121,11 +149,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="flex items-center gap-3 focus:outline-none group"
             >
               <div className="text-right hidden md:block">
-                <p className="text-xs font-black text-slate-800 leading-none">Ahmad Syarif</p>
-                <p className="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">Mahasiswa Tingkat Akhir</p>
+                <p className="text-xs font-black text-slate-800 leading-none">{profile?.name || 'Loading...'}</p>
+                <p className="text-[10px] text-blue-500 font-bold mt-1 uppercase tracking-tighter">{profile?.role || 'student'}</p>
               </div>
               <div className="w-10 h-10 bg-slate-100 rounded-2xl border-2 border-white shadow-sm flex items-center justify-center text-slate-700 font-black text-sm group-hover:border-blue-500 transition-all">
-                AS
+                {profile?.image ? (
+                  <img src={profile.image} alt="Profile" className="w-full h-full rounded-2xl object-cover" />
+                ) : (
+                  profile?.name ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'
+                )}
               </div>
             </button>
 
@@ -138,7 +170,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <FiSettings className="mr-3" /> Profil Saya
                 </button>
                 <button 
-                  onClick={() => alert("Logout Berhasil")}
+                  onClick={handleLogout}
                   className="w-full text-left px-6 py-3 text-[13px] font-bold text-red-500 hover:bg-red-50 flex items-center transition-colors"
                 >
                   <FiLogOut className="mr-3" /> Keluar Sistem

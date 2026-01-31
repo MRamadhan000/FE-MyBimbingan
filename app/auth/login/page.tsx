@@ -2,16 +2,24 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { loginStudent } from '../../services/auth';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy on submit
-    console.log("Mahasiswa Login Attempt:", { username, password });
-    alert(`Mahasiswa Login: ${username}`);
+    try {
+      const response = await loginStudent({ studentNumber: username, password });
+      console.log("Login successful:", response);
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      alert(`Login failed: ${error.message}`);
+    }
   };
 
   return (
