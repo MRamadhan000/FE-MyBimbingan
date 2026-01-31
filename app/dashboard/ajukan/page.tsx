@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiCheckCircle,
   FiChevronLeft,
@@ -10,23 +10,39 @@ import {
   FiSend,
   FiInfo
 } from "react-icons/fi";
+import { getAllLecturers } from "../../services/lecturers";
 
-// Data Dummy Daftar Dosen
-const DAFTAR_DOSEN = [
-  { id: 1, name: "Dr. Ir. Budi Santoso", nidn: "0412038401", dept: "Teknik Informatika", avatar: null },
-  { id: 2, name: "Siti Aminah, M.Kom", nidn: "0415058802", dept: "Sistem Informasi", avatar: null },
-  { id: 3, name: "Dr. Eng. Heru Wijaya", nidn: "0422087501", dept: "Teknik Informatika", avatar: null },
-  { id: 4, name: "Andini Putri, Ph.D", nidn: "0401019003", dept: "Data Science", avatar: null },
-];
+interface Lecturer {
+  id: string;
+  name: string;
+  nuptk: string;
+  interests: string[];
+  image: string;
+  password: string;
+  createdAt: string;
+}
 
 export default function AjukanBimbingan() {
   const [status, setStatus] = useState("idle");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDosen, setSelectedDosen] = useState<typeof DAFTAR_DOSEN[0] | null>(null);
+  const [selectedDosen, setSelectedDosen] = useState<Lecturer | null>(null);
+  const [lecturers, setLecturers] = useState<Lecturer[]>([]);
 
-  const filteredDosen = DAFTAR_DOSEN.filter(d => 
+  useEffect(() => {
+    const fetchLecturers = async () => {
+      try {
+        const response = await getAllLecturers();
+        setLecturers(response.data);
+      } catch (error) {
+        console.error("Failed to fetch lecturers:", error);
+      }
+    };
+    fetchLecturers();
+  }, []);
+
+  const filteredDosen = lecturers.filter(d => 
     d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    d.dept.toLowerCase().includes(searchQuery.toLowerCase())
+    d.interests.some(interest => interest.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -87,7 +103,7 @@ export default function AjukanBimbingan() {
                 <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 <input 
                   type="text"
-                  placeholder="Cari nama atau departemen..."
+                  placeholder="Cari nama atau minat..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:border-slate-200 outline-none transition-all text-slate-700"
@@ -114,7 +130,8 @@ export default function AjukanBimbingan() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-black text-slate-900 truncate">{dosen.name}</p>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">{dosen.dept}</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">NUPTK: {dosen.nuptk}</p>
+                      <p className="text-[10px] text-slate-400 font-medium">{dosen.interests.join(', ')}</p>
                     </div>
                   </button>
                 ))}

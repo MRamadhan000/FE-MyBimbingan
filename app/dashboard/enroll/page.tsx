@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   FiSearch, 
   FiUserPlus, 
@@ -10,29 +10,51 @@ import {
   FiAward,
   FiAlertCircle
 } from "react-icons/fi";
+import { getAllLecturers } from "../../services/lecturers";
+import { createEnrollment } from "../../services/enrollment";
 
-// Data Dosen (Tanpa Quota)
-const AVAILABLE_LECTURERS = [
-  { id: 1, name: "Dr. Ir. Budi Santoso", nidn: "0412038401", expert: "Software Engineering" },
-  { id: 2, name: "Siti Aminah, M.Kom", nidn: "0415058802", expert: "Data Science" },
-  { id: 3, name: "Dr. Eng. Heru Wijaya", nidn: "0422087501", expert: "Artificial Intelligence" },
-  { id: 4, name: "Andini Putri, Ph.D", nidn: "0401019003", expert: "Cyber Security" },
-  { id: 5, name: "Bambang Pamungkas, M.T", nidn: "0409088102", expert: "Network Architecture" },
-];
+interface Lecturer {
+  id: string;
+  name: string;
+  nuptk: string;
+  interests: string[];
+  image: string;
+  password: string;
+  createdAt: string;
+}
 
 export default function EnrollBimbingan() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-  const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
+  const [selectedDosen, setSelectedDosen] = useState<string | null>(null);
+  const [lecturers, setLecturers] = useState<Lecturer[]>([]);
 
-  const filteredDosen = AVAILABLE_LECTURERS.filter(d => 
+  useEffect(() => {
+    const fetchLecturers = async () => {
+      try {
+        const response = await getAllLecturers();
+        setLecturers(response.data);
+      } catch (error) {
+        console.error("Failed to fetch lecturers:", error);
+      }
+    };
+    fetchLecturers();
+  }, []);
+
+  const filteredDosen = lecturers.filter(d => 
     d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    d.expert.toLowerCase().includes(searchQuery.toLowerCase())
+    d.interests.some(interest => interest.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     if (selectedDosen) {
-      setTimeout(() => setIsSuccess(true), 800);
+      try {
+        await createEnrollment(selectedDosen);
+        setTimeout(() => setIsSuccess(true), 800);
+      } catch (error) {
+        console.error("Failed to enroll:", error);
+        alert("Failed to enroll");
+      }
     }
   };
 
@@ -104,10 +126,10 @@ export default function EnrollBimbingan() {
               <div className="space-y-1">
                 <h3 className={`font-black ${isSelected ? "text-white" : "text-slate-900"}`}>{dosen.name}</h3>
                 <p className={`text-[10px] font-bold uppercase tracking-widest ${isSelected ? "text-slate-400" : "text-slate-400"}`}>
-                   NIDN: {dosen.nidn}
+                   NUPTK: {dosen.nuptk}
                 </p>
                 <div className={`flex items-center gap-2 text-[11px] font-bold mt-2 ${isSelected ? "text-blue-300" : "text-blue-600"}`}>
-                   <FiAward /> {dosen.expert}
+                   <FiAward /> {dosen.interests.join(', ')}
                 </div>
               </div>
             </div>
