@@ -33,24 +33,24 @@ export default function BimbinganGeneral() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast, showError } = useToast();
 
-  useEffect(() => {
-    const fetchEnrollments = async () => {
-      try {
-        const response = await getMyEnrollments();
-        setEnrollments(response.data || []);
-      } catch (error) {
-        console.error("Failed to fetch enrollments:", error);
-        showError(
-          "Gagal Memuat Data",
-          error instanceof Error ? error.message : "Tidak dapat memuat daftar pembimbing. Silakan refresh halaman."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchEnrollments = async () => {
+    try {
+      const response = await getMyEnrollments();
+      setEnrollments(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch enrollments:", error);
+      showError(
+        "Gagal Memuat Data",
+        error instanceof Error ? error.message : "Tidak dapat memuat daftar pembimbing. Silakan refresh halaman."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchEnrollments();
-  }, [showError]);
+  }, []); // <- dependency array kosong agar hanya fetch sekali
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/50">
       <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
@@ -95,7 +95,7 @@ export default function BimbinganGeneral() {
               return (
                 <Link
                   key={enrollment.id}
-                  href={`/dashboard/bimbingan/${lecturerSlug}`}
+                  href={`/dashboard/bimbingan/${enrollment.id}`}
                   className="group block"
                 >
                   <div className="bg-white border border-slate-200 rounded-xl hover:border-blue-300 hover:shadow-lg hover:shadow-blue-50 transition-all duration-200">

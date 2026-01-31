@@ -13,7 +13,7 @@ export interface SubmissionFeedback {
   content: string;
   status: string;
   createdAt: string;
-  lecturer: {
+  lecturer?: {
     id: string;
     name: string;
     nuptk: string;
@@ -52,6 +52,11 @@ export interface CreateSubmissionData {
   enrollmentId: string;
   parentId?: string;
   files?: FileList | File[];
+}
+
+export interface GetSubmissionsResponse {
+  message: string;
+  data: Submission[];
 }
 
 // Create Submission
@@ -100,7 +105,7 @@ export async function createSubmission(data: CreateSubmissionData) {
 }
 
 // Get Submissions by Enrollment ID
-export async function getSubmissionsByEnrollment(enrollmentId: string) {
+export async function getSubmissionsByEnrollment(enrollmentId: string): Promise<GetSubmissionsResponse> {
   const response = await fetch(`${BASE_URL}/submissions/enrollment/${enrollmentId}`, {
     method: 'GET',
     credentials: 'include',
